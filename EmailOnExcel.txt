@@ -1,0 +1,53 @@
+Sub ExtraerCorreosDeOutlook()
+
+Dim OutlookApp As Object
+Dim ONameSpace As Object
+Dim MyFolder As Object
+Dim SubFolder As Object
+Dim OItem As Object
+Dim Fila As Integer
+
+
+Set OutlookApp = CreateObject("Outlook.Application")
+Set ONameSpace = OutlookApp.GetNamespace("MAPI")
+Set MyFolder = ONameSpace.GetDefaultFolder(olFolderInbox).Folders("SOE365")
+'Set MyFolder = ONameSpace.Folders("george.neighborhoods@company.com").Folders("Clients")
+
+
+
+Range(Range("A2"), ActiveCell.SpecialCells(xlLastCell)).ClearContents
+
+Fila = 2
+'
+'For Each SubFolder In MyFolder.Folders
+'    Sheets("Hoja1").Cells(Fila, 1).Value = SubFolder.Name
+'    Fila = Fila + 1
+'Next SubFolder
+
+'For Each OItem In MyFolder.Items
+    'Sheets("Hoja1").Cells(Fila, 1).Value = OItem.Subject
+    'Sheets("Hoja1").Cells(Fila, 1).Value = OItem.SenderEmailAddress
+    'Sheets("Hoja1").Cells(Fila, 2).Value = OItem.To
+    'Sheets("Hoja1").Cells(Fila, 4).Value = OItem.ReceivedTime
+    'Sheets("Hoja1").Cells(Fila, 5).Value = OItem.Body
+    'Fila = Fila + 1
+'Next OItem
+
+For Each OItem In MyFolder.Items
+    If Month(OItem.ReceivedTime) = 11 Then
+        If InStr(OItem.Subject, "[GMSSOC]") > 0 Then
+            If InStr(OItem.Subject, "RE:") = 0 Then
+            
+                Sheets("Hoja1").Cells(Fila, 1).Value = OItem.Subject
+                Fila = Fila + 1
+        
+            End If
+        End If
+    End If
+Next OItem
+
+Set OutlookApp = Nothing
+Set ONameSpace = Nothing
+Set MyFolder = Nothing
+
+End Sub
