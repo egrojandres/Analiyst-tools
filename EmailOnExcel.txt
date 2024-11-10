@@ -6,17 +6,22 @@ Dim MyFolder As Object
 Dim SubFolder As Object
 Dim OItem As Object
 Dim Fila As Integer
+Dim Asunto As String
+Dim Regex As Object
+Dim Matches As Object
+Dim Analyst As String
 
 
 Set OutlookApp = CreateObject("Outlook.Application")
 Set ONameSpace = OutlookApp.GetNamespace("MAPI")
 Set MyFolder = ONameSpace.GetDefaultFolder(olFolderInbox).Folders("SOE365")
-'Set MyFolder = ONameSpace.Folders("george.neighborhoods@company.com").Folders("Clients")
+'Set MyFolder = ONameSpace.Folders("jorgeandres.barrioschinche@kyndryl.com").Folders("SOE365")
 
 
 
 Range(Range("A2"), ActiveCell.SpecialCells(xlLastCell)).ClearContents
 
+Analyst = "Jorge Barrios" 'Default Analyst name, that is, me
 Fila = 2
 '
 'For Each SubFolder In MyFolder.Folders
@@ -33,14 +38,22 @@ Fila = 2
     'Fila = Fila + 1
 'Next OItem
 
+Set Regex = CreateObject("VBScript.RegExp")
+Regex.Pattern = "Riesgo\s(.*?)]" ' Patrón para buscar "Riesgo" seguido de cualquier cosa hasta el siguiente "]"
+
 For Each OItem In MyFolder.Items
+    Asunto = OItem.Subject
     If Month(OItem.ReceivedTime) = 11 Then
         If InStr(OItem.Subject, "[GMSSOC]") > 0 Then
             If InStr(OItem.Subject, "RE:") = 0 Then
-            
                 Sheets("Hoja1").Cells(Fila, 1).Value = OItem.Subject
-                Fila = Fila + 1
-        
+                If Regex.Test(Asunto) Then
+                    Set Matches = Regex.Execute(Asunto)
+                    Sheets("Hoja1").Cells(Fila, 2).Value = Matches(0).SubMatches(0)
+                    Sheets("Hoja1").Cells(Fila, 3).Value = Analyst
+                    Fila = Fila + 1
+                
+                End If
             End If
         End If
     End If
